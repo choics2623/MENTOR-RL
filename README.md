@@ -9,7 +9,7 @@
 **A Reinforcement Learning Framework for Distilling Tool-Use Capabilities from Large to Small Language Models**
 
 [ChangSu Choi](https://github.com/choics2623)¹\*, [Hoyun Song](https://github.com/HoyunS)²\*, Dongyeon Kim², WooHyeon Jung², Minkyung Cho²,
-Sunjin Park³, NohHyeob Bae³, Seona Yu³, [KyungTae Lim](https://github.com/ktlim)²†
+Sunjin Park³, NohHyeob Bae³, Seona Yu³, [KyungTae Lim](https://github.com/jujbob)²†
 
 ¹Seoul National University of Science and Technology, ²KAIST, ³LG CNS
 
