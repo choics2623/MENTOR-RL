@@ -1,0 +1,214 @@
+Metadata-Version: 2.4
+Name: mentor
+Version: 0.2.0.dev0
+Summary: Mentor: Learning to Reason with Tool Call for LLMs via Reinforcement Learning
+Home-page: https://example.com/anonymous-repo
+Author: Anonymous
+Author-email: anonymous@example.com
+License: MIT License
+Description-Content-Type: text/markdown
+Requires-Dist: torch
+Requires-Dist: accelerate
+Requires-Dist: codetiming
+Requires-Dist: datasets<2.21,>=2.19
+Requires-Dist: dill
+Requires-Dist: hydra-core
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: peft
+Requires-Dist: pyarrow<16,>=15
+Requires-Dist: pybind11
+Requires-Dist: pylatexenc
+Requires-Dist: ray[default]>=2.10
+Requires-Dist: tensordict<=0.6.2
+Requires-Dist: torchdata
+Requires-Dist: transformers
+Requires-Dist: vllm==0.8.4
+Requires-Dist: wandb
+Requires-Dist: base58
+Requires-Dist: nltk
+Requires-Dist: numpy<=1.26.4
+Requires-Dist: langid
+Requires-Dist: openai
+Requires-Dist: peft
+Requires-Dist: PyYAML
+Requires-Dist: rank_bm25
+Requires-Dist: rouge
+Requires-Dist: spacy
+Requires-Dist: tiktoken
+Requires-Dist: tqdm
+Requires-Dist: transformers>=4.40.0
+Requires-Dist: bm25s[core]==0.2.0
+Requires-Dist: fschat
+Requires-Dist: streamlit
+Requires-Dist: chonkie>=0.4.0
+Requires-Dist: gradio>=5.0.0
+Requires-Dist: rouge-chinese
+Requires-Dist: jieba
+Requires-Dist: sglang
+Requires-Dist: jsonlines
+Requires-Dist: hf_transfer
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: summary
+
+# MENTOR: Model ENhancement via Teacher-Optimized Rewards
+
+EACL 2026 Submission
+
+---
+
+## Overview
+
+MENTOR is a reinforcement learning framework for distilling tool-use capabilities from large language models (LLMs) to smaller language models (SLMs) using teacher-guided dense rewards.
+
+---
+
+## Installation
+
+### Environment Setup
+
+```bash
+# Create conda environment
+conda create -n mentor python==3.10
+conda activate mentor
+
+# Clone repository
+git clone YOUR_ANONYMOUS_REPO_URL
+cd MENTOR-anonymous
+
+# Install dependencies
+pip3 install -e .
+pip3 install flash_attn==2.7.4.post1 --no-build-isolation
+```
+
+### Optional Dependencies
+
+For Wikipedia RAG evaluation tasks:
+```bash
+conda install -c pytorch -c nvidia faiss-gpu=1.8.0
+```
+
+For mathematical reasoning evaluation:
+```bash
+# Install Math-Verify for mathematical verification
+pip install math-verify[antlr4.9.3]
+
+# Install MathRuler for mathematical grading
+git clone https://github.com/hiyouga/MathRuler.git
+cd MathRuler
+pip install .
+cd ..
+```
+
+---
+
+## Serving Components
+
+### Sandbox Serving
+
+The sandbox server executes Python code remotely for tool-augmented reasoning:
+
+```bash
+cd scripts/serving
+python sandbox.py --port YOUR_SANDBOX_PORT  # e.g., 5000
+```
+
+### Retriever Serving
+
+For retrieval-augmented generation (RAG) tasks with Wikipedia search:
+
+```bash
+cd scripts/serving
+python retriever_serving.py \
+    --config retriever_config.yaml \
+    --num_retriever YOUR_NUM_RETRIEVERS \  # e.g., 4
+    --port YOUR_RETRIEVER_PORT  # e.g., 8081
+```
+
+---
+
+## Training
+
+### Example Training Scripts
+
+We provide example training scripts:
+
+#### Training Qwen2.5-7B
+
+```bash
+cd scripts/train
+bash train_qwen2.5.sh
+```
+
+#### Training Qwen3-8B
+
+```bash
+cd scripts/train
+bash train_qwen3.sh
+```
+
+### Configuration
+
+Before training, modify the following variables in the training scripts:
+
+```bash
+TRAIN_BATCH_SIZE=YOUR_TRAIN_BATCH_SIZE  # e.g., 32, 64, 128
+PPO_MINI_BATCH_SIZE=YOUR_PPO_MINI_BATCH_SIZE  # e.g., 4, 8, 32
+MAX_RESPONSE_LENGTH=YOUR_MAX_RESPONSE_LENGTH  # e.g., 4096, 8192
+MAX_NUM_BATCHED_TOKENS=YOUR_MAX_NUM_BATCHED_TOKENS  # e.g., 65536, 131072
+ROLLOUT_N=YOUR_ROLLOUT_N  # e.g., 8, 10, 16
+ROLLOUT_TP=YOUR_ROLLOUT_TP  # e.g., 2, 4
+ROLLOUT_GPU_UTIL=YOUR_ROLLOUT_GPU_UTIL  # e.g., 0.6, 0.8
+MAX_TURNS=YOUR_MAX_TURNS  # e.g., 5, 10
+SAVE_FREQ=YOUR_SAVE_FREQ  # e.g., 10, 20
+TEST_FREQ=YOUR_TEST_FREQ  # e.g., 10, 20
+TOTAL_EPOCHS=YOUR_TOTAL_EPOCHS  # e.g., 2, 5, 10
+WANDB_API_KEY=YOUR_WANDB_API_KEY_HERE
+SEARCH_URL=YOUR_SEARCH_URL  # e.g., http://localhost:8081
+SANDBOX_URL=YOUR_SANDBOX_URL  # e.g., http://localhost:5000
+SAVE_BASE_DIR=YOUR_SAVE_BASE_DIR  # e.g., ../../saved_models
+TRAIN_FILES="['/path/to/your/train.parquet']"
+TEST_FILES="['/path/to/your/test.parquet']"
+```
+
+### Hardware Requirements
+
+- 1 node with 8 GPUs (e.g., 8x H100 80GB)
+- Tensor parallelism: 2-4 for 7-8B models
+
+---
+
+## Evaluation
+
+Run batch inference on evaluation benchmarks:
+
+```bash
+cd scripts/evaluation
+
+CUDA_VISIBLE_DEVICES=0,1,2,3 python batch_inference_multiturn_bench.py \
+    --dataset_name YOUR_DATASET_NAME \
+    --model_path YOUR_MODEL_PATH \
+    --tensor_parallel_size 4 \
+    --max_turns 5 \
+    --output_file ./results/output.jsonl \
+    --batch_size 10000 \
+    --categories YOUR_CATEGORIES
+```
+
+---
+
+## License
+
+This code is licensed under the Apache License, Version 2.0.
+
+---
+
+## Acknowledgments
+
+This work builds upon the verl framework for efficient RLHF training.

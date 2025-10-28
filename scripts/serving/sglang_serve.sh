@@ -1,0 +1,12 @@
+CUDA_VISIBLE_DEVICES=YOUR_VISIBLE_GPUS python3 -m sglang.launch_server \
+        --served-model-name YOUR_MODEL_NAME \
+        --model-path /path/to/your/models/Qwen3-8B \
+        --tp YOUR_TENSOR_PARALLELISM \
+        --context-length 8192 \
+        --enable-metrics \
+        --dtype bfloat16 \
+        --host 0.0.0.0 \
+        --port YOUR_PORT \
+        --trust-remote-code \
+        --disable-overlap-schedule \
+        --disable-radix-cache
