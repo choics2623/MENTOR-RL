@@ -284,7 +284,7 @@ If you find MENTOR useful for your research, please cite our paper:
 
 ```bibtex
 @misc{choi2025mentorreinforcementlearningframework,
-      title={MENTOR: A Reinforcement Learning Framework for Model Enhancement via Teacher-Optimized Rewards in Small Models},
+      title={MENTOR: A Reinforcement Learning Framework for Enabling Tool Use in Small Models via Teacher-Optimized Rewards},
       author={ChangSu Choi and Hoyun Song and Dongyeon Kim and WooHyeon Jung and Minkyung Cho and Sunjin Park and NohHyeob Bae and Seona Yu and KyungTae Lim},
       year={2025},
       eprint={2510.18383},
