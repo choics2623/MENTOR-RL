@@ -401,7 +401,20 @@ def process_batch_multiturn(samples: List[Dict], llm: LLM, tokenizer, sampling_p
         # Check conversation length and skip if too long
         for idx in active_indices:
             conv = conversations[idx]
-            conv_tokens = tokenizer.encode(conv)
+
+            # Quick character-based pre-check to avoid tokenizing huge strings
+            # Rough estimate: 1 token ≈ 4 characters
+            if len(conv) > 160000:  # ~40k tokens worth of chars
+                print(f"Skipping sample {idx} due to excessive character length ({len(conv)} chars)")
+                skipped_samples.add(idx)
+                continue
+
+            try:
+                conv_tokens = tokenizer.encode(conv)
+            except Exception as e:
+                print(f"Skipping sample {idx} due to tokenization error: {e}")
+                skipped_samples.add(idx)
+                continue
 
             # If conversation is too long, skip this sample entirely
             max_conv_len = 38000  # Leave some room for generation
@@ -533,10 +546,17 @@ def process_batch_multiturn(samples: List[Dict], llm: LLM, tokenizer, sampling_p
             print(f"Executing {len(tool_calls_batch)} tool call batches")
             tool_responses_list = batch_execute(env_batch, tool_calls_batch, sandbox_url)
 
-            # Add tool responses to conversations
+            # Add tool responses to conversations with truncation
+            MAX_RESPONSE_LENGTH = 5000  # Max chars per tool response
+            MAX_CONV_LENGTH_AFTER_TOOLS = 35000  # Max conversation length after adding tools
+
             for idx, (sample_idx, tool_calls, tool_responses) in enumerate(zip(call_indices, tool_calls_batch, tool_responses_list)):
                 tool_response_str = ""
                 for call, response in zip(tool_calls, tool_responses):
+                    # Truncate response if too long
+                    if len(response) > MAX_RESPONSE_LENGTH:
+                        response = response[:MAX_RESPONSE_LENGTH] + f"\n... [truncated, {len(response) - MAX_RESPONSE_LENGTH} chars omitted]"
+
                     tool_response_str += f"<tool_response>{call}\n{response}\n</tool_response>\n"
 
                 # Format as user message (like spmd)
@@ -545,7 +565,18 @@ def process_batch_multiturn(samples: List[Dict], llm: LLM, tokenizer, sampling_p
                 # Add assistant start for next turn
                 tool_response_str += "\n<|im_start|>assistant\n<think>"
 
-                conversations[sample_idx] += tool_response_str
+                # Check if adding this will make conversation too long
+                test_conv = conversations[sample_idx] + tool_response_str
+                test_tokens = len(tokenizer.encode(test_conv))
+
+                if test_tokens > MAX_CONV_LENGTH_AFTER_TOOLS:
+                    print(f"Skipping sample {sample_idx} in turn {turn + 2}: conversation too long after tool responses ({test_tokens} tokens)")
+                    skipped_samples.add(sample_idx)
+                    # Remove from new_active_indices
+                    if sample_idx in new_active_indices:
+                        new_active_indices.remove(sample_idx)
+                else:
+                    conversations[sample_idx] += tool_response_str
 
         # Update curr_max_tokens for used tokens (like spmd)
         for i, output in enumerate(outputs):
@@ -797,6 +828,9 @@ def main():
 
     # Open file in append mode if resuming, write mode if starting fresh
     file_mode = 'a' if start_batch > 0 else 'w'
+
+    # Create output directory if it doesn't exist
+    os.makedirs(os.path.dirname(os.path.abspath(args.output_file)), exist_ok=True)
 
     with open(args.output_file, file_mode, encoding='utf-8') as f:
         for batch_idx in range(start_batch, (total_samples + args.batch_size - 1) // args.batch_size):
