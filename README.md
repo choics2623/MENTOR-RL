@@ -1,6 +1,6 @@
 <div align="center">
 
-# MENTOR: Reinforcement Learning Framework for Enabling Tool Use in Small Models via Teacher-Optimized Rewards
+# MENTOR: A Reinforcement Learning Framework for Distilling Tool Use in Small Models via Teacher-Optimized Rewards
 
 [![arXiv](https://img.shields.io/badge/arXiv-2510.18383-b31b1b.svg)](https://arxiv.org/abs/2510.18383)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
@@ -11,7 +11,7 @@
 [ChangSu Choi](https://github.com/choics2623)¹\*, [Hoyun Song](https://github.com/HoyunS)²\*, Dongyeon Kim², WooHyeon Jung², Minkyung Cho²,
 Sunjin Park³, NohHyeob Bae³, Seona Yu³, [KyungTae Lim](https://github.com/jujbob)²†
 
-¹Seoul National University of Science and Technology, ²KAIST, ³LG CNS
+¹Seoul National University of Science and Technology, ²Sungkyunkwan University, ³LG CNS, Dongguk University Medical Center
 
 \*Equal contribution, †Corresponding author
 
